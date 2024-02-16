@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CountryController;
+use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\v1\OrganizationController;
 use App\Models\SmsLog;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -40,7 +41,20 @@ Route::prefix('user')->middleware('auth:api')->group(function () {
     Route::get('/profile', [UserController::class, 'profile']);
 });
 
-Route::prefix('organizations')->middleware('auth:api')->group(function () {
-    Route::post('/', [OrganizationController::class, 'store']);
-    Route::get('/my-organization', [OrganizationController::class, 'myOrganization'])->middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION]);
+Route::prefix('organizations')
+    ->middleware('auth:api')
+    ->group(function () {
+        Route::post('/', [OrganizationController::class, 'store']);
+        Route::middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION])->group(function () {
+            Route::get('/my-organization', [OrganizationController::class, 'myOrganization'])->middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION]);
+            Route::put('/{organization}', [OrganizationController::class, 'update'])->whereNumber('organization');
+            Route::post('/details', [OrganizationController::class, 'details']);
+            Route::get('/branches', [OrganizationController::class, 'branches']);
+            Route::post('/branches', [OrganizationController::class, 'storeBranch']);
+            Route::put('/branches/{organization}', [OrganizationController::class, 'updateBranch'])->whereNumber('organization');
+            Route::delete('/branches/{organization}', [OrganizationController::class, 'destroyBranch'])->whereNumber('organization');
+        });
+    });
+Route::prefix('countries')->group(function () {
+    Route::get('/', [CountryController::class, 'index']);
 });

@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api\v1;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Interfaces\OrganizationInterface;
+use App\Http\Requests\Organization\StoreOrganizationDetailRequest;
 use App\Http\Requests\Organization\StoreOrganizationRequest;
 use App\Http\Requests\Organization\UpdateOrganizationRequest;
-use App\Http\Interfaces\OrganizationInterface;
-use Illuminate\Http\JsonResponse;
 use App\Models\Organization;
-use App\Http\Resources\DefaultResource;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -135,5 +135,30 @@ class OrganizationController extends Controller
         $organization_id = Auth::user()->organization_id;
 
         return $this->organizationRepository->show($request, $organization_id);
+    }
+
+    public function details(StoreOrganizationDetailRequest $request)
+    {
+        return $this->organizationRepository->detail($request);
+    }
+
+    public function branches(Request $request)
+    {
+        return $this->organizationRepository->adminIndex($request, true);
+    }
+
+    public function storeBranch(StoreOrganizationRequest $request)
+    {
+        return $this->organizationRepository->store($request, true);
+    }
+
+    public function updateBranch(UpdateOrganizationRequest $request, Organization $organization)
+    {
+        return $this->organizationRepository->update($request, $organization, true);
+    }
+
+    public function destroyBranch(Organization $organization)
+    {
+        return $this->organizationRepository->destroy($organization, true);
     }
 }
