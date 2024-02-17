@@ -15,6 +15,9 @@ class Category extends Model
     const TYPE_CATEGORY = 1;
     const TYPE_GENRE = 2;
 
+    const STATUS_ACTIVE = 1;
+    const STATUS_INACTIVE = 0;
+
     protected $table = 'categories';
 
     protected $fillable = [

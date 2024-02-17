@@ -11,12 +11,11 @@ trait CommonModelTrait
     {
         parent::boot();
         static::creating(function ($model) {
-            $model->slug = $this->setSlugAttribute($model->name);
+            $model->slug = Str::slug($model->name);
+        });
+        static::updating(function ($model) {
+            $model->slug = Str::slug($model->name);
         });
     }
 
-    public function setSlugAttribute($value): string
-    {
-        return Str::slug($value);
-    }
 }
