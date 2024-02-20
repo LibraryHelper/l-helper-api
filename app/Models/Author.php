@@ -4,14 +4,25 @@ namespace App\Models;
 
 use App\Traits\CommonModelTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
+/**
+ * This is the model class for table "authors".
+ */
 class Author extends Model
 {
     use CommonModelTrait;
+    protected $table = 'authors';
 
     protected $fillable = [
-        'name',
-        'status'
+        "id",
+        "status",
+        "created_at",
+        "updated_at",
+        "name",
+        "slug"
     ];
+
 
 }
