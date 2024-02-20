@@ -59,6 +59,7 @@ class CrudGenerateCommand extends Command
     #[NoReturn]
     public function handle(): void
     {
+
         $this->setParameters();
         $this->setTableInfo();
         $this->generateModel();
@@ -66,9 +67,9 @@ class CrudGenerateCommand extends Command
         $this->generateInterface();
         $this->generateRepository();
         $this->generateController();
+        $this->writeRoutes();
 
-        exec('./vendor/bin/pint');
-        dd($this->model_name, $this->controller_path, $this->table, $this->module);
+        $this->info('CRUD generated successfully');
     }
 
     private function setParameters(): void
@@ -81,7 +82,7 @@ class CrudGenerateCommand extends Command
             $this->model_name = text('Model', '0', required: true);
         }
         if (empty($this->controller_path)) {
-            $this->controller_path = text('0', default: 'Api/v1');
+            $this->controller_path = text('0', default: 'Api');
         }
         if (empty($this->table)) {
             $this->table = text('Table ', default: Str::snake(Str::pluralStudly($this->model_name)), required: true);
@@ -96,7 +97,7 @@ class CrudGenerateCommand extends Command
             }
 
         }
-        if (! empty($this->module) && $this->module !== 'no') {
+        if (!empty($this->module) && $this->module !== 'no') {
             $this->is_module = true;
         }
     }
@@ -181,14 +182,14 @@ class CrudGenerateCommand extends Command
                 $casts .= "\n\t\t'$column_name' => 'array',";
             }
             /** create relation functions */
-            if (! empty($attribute->foreign)) {
+            if (!empty($attribute->foreign)) {
                 $foreign = $attribute->foreign;
                 $modelName = Str::studly(Str::singular($foreign['table']));
                 $functionName = rtrim($column_name, '_id');
-                if ($this->is_module and class_exists($namespace."\\$modelName")) {
+                if ($this->is_module and class_exists($namespace . "\\$modelName")) {
                     $usePath .= "use $namespace\\$modelName;\n";
                 }
-                $relations .= "\n\tpublic function $functionName(): BelongsTo".
+                $relations .= "\n\tpublic function $functionName(): BelongsTo" .
                     "\n\t{\n\t\treturn \$this->belongsTo($modelName::class);\n\t}\n";
             }
         }
@@ -197,7 +198,7 @@ class CrudGenerateCommand extends Command
             $useTraits .= "\n\tuse SoftDeletes;\n";
         }
 
-        $cast = "\n\tprotected \$casts = [".$casts."\n\t];\n";
+        $cast = "\n\tprotected \$casts = [" . $casts . "\n\t];\n";
         $modelTemplate = str_replace(
             [
                 '{{namespace}}',
@@ -224,7 +225,7 @@ class CrudGenerateCommand extends Command
             $this->getStub('CrudModel')
         );
 
-        if (! empty($this->module) && $this->module !== 'no') {
+        if (!empty($this->module) && $this->module !== 'no') {
             $this->namespaces['model'] = "Modules\\$this->module\\Entities\\$this->model_name";
             file_put_contents(base_path("/Modules/$this->module/Entities/$this->model_name.php"), $modelTemplate);
         } else {
@@ -235,7 +236,7 @@ class CrudGenerateCommand extends Command
 
     protected function getStub(string $type): string
     {
-        return (string) file_get_contents(base_path("stubs/$type.stub"));
+        return (string)file_get_contents(base_path("stubs/$type.stub"));
     }
 
     protected function generateRequest(): void
@@ -257,7 +258,7 @@ class CrudGenerateCommand extends Command
                     break;
                 case $type->contains('char'):
                     $columnRules[] = 'string';
-                    $columnRules[] = 'max:'.$column->maximum_length;
+                    $columnRules[] = 'max:' . $column->maximum_length;
 
                     break;
                 case $type == 'text':
@@ -265,14 +266,14 @@ class CrudGenerateCommand extends Command
                     break;
                 case $type->contains('int'):
                     $columnRules[] = 'integer';
-                    $columnRules[] = 'min:'.self::$integerTypes[$type->__toString()][0];
-                    $columnRules[] = 'max:'.self::$integerTypes[$type->__toString()][1];
+                    $columnRules[] = 'min:' . self::$integerTypes[$type->__toString()][0];
+                    $columnRules[] = 'max:' . self::$integerTypes[$type->__toString()][1];
 
                     break;
                 case $type->contains('double') ||
-                $type->contains('decimal') ||
-                $type->contains('numeric') ||
-                $type->contains('real'):
+                    $type->contains('decimal') ||
+                    $type->contains('numeric') ||
+                    $type->contains('real'):
                     // should we do more specific here?
                     // some kind of regex validation for double, double unsigned, double(8, 2), decimal etc...?
                     $columnRules[] = 'numeric';
@@ -290,8 +291,8 @@ class CrudGenerateCommand extends Command
                     break;
 
             }
-            if (! empty($column->foreign)) {
-                $columnRules[] = 'exists:'.implode(',', $column->foreign);
+            if (!empty($column->foreign)) {
+                $columnRules[] = 'exists:' . implode(',', $column->foreign);
             }
             $stringRules = implode('|', $columnRules);
             $createRules[$column_name] = $stringRules;
@@ -299,14 +300,13 @@ class CrudGenerateCommand extends Command
 
         }
         $this->createRequestFile($createRules, 'store');
-        $this->createRequestFile($createRules, 'update');
+        $this->createRequestFile($updateRules, 'update');
     }
 
     private function createRequestFile(array $rules, string $type): void
     {
-        $file_name = Str::title($type).$this->model_name.'Request';
+        $file_name = Str::title($type) . $this->model_name . 'Request';
         $path = "$this->model_name/$file_name";
-
         Artisan::call('make:request', [
             'name' => $path,
             '--force' => true,
@@ -319,39 +319,35 @@ class CrudGenerateCommand extends Command
         // The original $file we passed to the command may have changed on creation validation inside the command.
         // We take the actual path which was used to create the file!
         $actualFile = $matches[1] ?? null;
-
-        if ($actualFile) {
+        if ($actualFile && file_exists($actualFile)) {
             try {
                 $rules = VarExporter::export($rules, VarExporter::INLINE_SCALAR_LIST);
-                $fileContent = File::get(base_path($actualFile));
+                $fileContent = File::get($actualFile);
+
                 // Add spaces to indent the array in the request class file.
                 $rulesFormatted = str_replace("\n", "\n        ", $rules);
                 $pattern = '/(public function rules\(\): array\n\s*{\n\s*return )\[.*](;)/s';
-                $replaceContent = preg_replace($pattern, '$1'.$rulesFormatted.'$2', $fileContent);
+                $replaceContent = preg_replace($pattern, '$1' . $rulesFormatted . '$2', $fileContent);
                 File::put($actualFile, $replaceContent);
                 if ($this->is_module) {
-                    if (! File::isDirectory(base_path("Modules/$this->module/Http/Requests/$this->model_name"))) {
+                    if (!File::isDirectory(base_path("Modules/$this->module/Http/Requests/$this->model_name"))) {
                         File::makeDirectory(base_path("Modules/$this->module/Http/Requests/$this->model_name/"), recursive: true);
                     }
                     $module_path = base_path("Modules/$this->module/Http/Requests/$this->model_name/$file_name.php");
-                    File::move(base_path($actualFile), $module_path);
+                    File::move($actualFile, $module_path);
                     $fileContent = File::get($module_path);
 
                     $result = str_replace("App\\Http\\Requests\\$this->model_name", "Modules\\$this->module\\Http\\Requests\\$this->model_name", $fileContent);
                     File::put($module_path, $result);
-                    $this->namespaces[$type.'_request'] = "Modules\\$this->module\\Http\\Requests\\$this->model_name";
+                    $this->namespaces[$type . '_request'] = "Modules\\$this->module\\Http\\Requests\\$this->model_name";
                 } else {
-                    $this->namespaces[$type.'_request'] = "App\\Http\\Requests\\$this->model_name";
+                    $result = str_replace('App\\Http\\Requests\\{{path}};', "App\\Http\\Requests\\$this->model_name;", $replaceContent);
+                    File::put($actualFile, $result);
+                    $this->namespaces[$type . '_request'] = "App\\Http\\Requests\\$this->model_name";
                 }
             } catch (Exception $exception) {
                 $this->error($exception->getMessage());
             }
-        }
-
-        if (Str::startsWith($output, 'INFO')) {
-            $this->info($output);
-        } else {
-            $this->error($output);
         }
     }
 
@@ -360,14 +356,14 @@ class CrudGenerateCommand extends Command
         $stub = $this->getStub('Interface');
 
         if ($this->is_module) {
-            if (! File::isDirectory(base_path("Modules/$this->module/Http/Interfaces"))) {
+            if (!File::isDirectory(base_path("Modules/$this->module/Http/Interfaces"))) {
                 File::makeDirectory(base_path("Modules/$this->module/Http/Interfaces"));
             }
 
             $namespace = "Modules\\$this->module\\Http\\Interfaces";
             $path = "Modules/$this->module/Http/Interfaces/{$this->model_name}Interface.php";
         } else {
-            if (! File::isDirectory(app_path('Http/Interfaces/'))) {
+            if (!File::isDirectory(app_path('Http/Interfaces/'))) {
                 File::makeDirectory(app_path('Http/Interfaces/'));
             }
 
@@ -383,14 +379,14 @@ class CrudGenerateCommand extends Command
         $stub = $this->getStub('Repository');
 
         if ($this->is_module) {
-            if (! File::isDirectory(base_path("Modules/$this->module/Http/Repositories"))) {
+            if (!File::isDirectory(base_path("Modules/$this->module/Http/Repositories"))) {
                 File::makeDirectory(base_path("Modules/$this->module/Http/Repositories"));
             }
 
             $namespace = "Modules\\$this->module\\Http\\Repositories";
             $path = "Modules/$this->module/Http/Repositories/{$this->model_name}Repository.php";
         } else {
-            if (! File::isDirectory(app_path('Http/Repositories/'))) {
+            if (!File::isDirectory(app_path('Http/Repositories/'))) {
                 File::makeDirectory(app_path('Http/Repositories/'));
             }
 
@@ -419,14 +415,14 @@ class CrudGenerateCommand extends Command
                     break;
             }
             if (strtoupper('asd') === 'SWAGGER') {
-                if (! in_array($key, $this->notUse)) {
+                if (!in_array($key, $this->notUse)) {
                     $fields .= "\n\t *  \t\t\t@OA\Property(property='$key',type='$type'),";
                     $fields = str_replace("'", '"', $fields);
                     $stub = $this->getStub('ControllerSwagger');
 
                 }
             } else {
-                if (! in_array($key, $this->notUse)) {
+                if (!in_array($key, $this->notUse)) {
                     $fields .= "     * @bodyParam $key $type\n";
                 }
                 $response .= "     *  \"$key\": \"$type\",\n";
@@ -438,16 +434,16 @@ class CrudGenerateCommand extends Command
         $response = trim($response);
 
         if ($this->is_module) {
-            if (! File::isDirectory(base_path("Modules/$this->module/Http/Controllers/".$this->controller_path))) {
-                File::makeDirectory(base_path("Modules/$this->module/Http/Controllers/".$this->controller_path), recursive: true);
+            if (!File::isDirectory(base_path("Modules/$this->module/Http/Controllers/" . $this->controller_path))) {
+                File::makeDirectory(base_path("Modules/$this->module/Http/Controllers/" . $this->controller_path), recursive: true);
             }
             $controller_path = str_replace('/', '\\', $this->controller_path);
 
             $namespace = "Modules\\$this->module\\Http\\Controllers\\$controller_path";
             $path = "Modules/$this->module/Http/Controllers/$this->controller_path/{$this->model_name}Controller.php";
         } else {
-            if (! File::isDirectory(app_path('Http/Controllers/'.$this->controller_path))) {
-                File::makeDirectory(app_path('Http/Controllers/'.$this->controller_path), recursive: true);
+            if (!File::isDirectory(app_path('Http/Controllers/' . $this->controller_path))) {
+                File::makeDirectory(app_path('Http/Controllers/' . $this->controller_path), recursive: true);
             }
             $controller_path = str_replace('/', '\\', $this->controller_path);
 
@@ -478,6 +474,7 @@ class CrudGenerateCommand extends Command
             ],
             $stub
         );
+        $this->namespaces['controller'] = $namespace;
         //
         file_put_contents(base_path($path), $controllerTemplate);
         //        $artisanCall = $documentation === 'SWAGGER' ? 'l5-swagger:generate' : 'scribe:generate';
@@ -492,5 +489,28 @@ class CrudGenerateCommand extends Command
                                     AND column_name='$column';");
 
         return $info[0];
+    }
+
+    public function writeRoutes(): void
+    {
+        $name = $this->model_name;
+        $name_upper = Str::upper($name);
+        $name_lower = Str::lower($name);
+        $namespace = $this->namespaces['controller'];
+        $prefix = Str::plural($name_lower);
+        $routes = "
+Route::prefix('{$prefix}')->group(function () {
+    Route::get('/', [{$namespace}\\{$name}Controller::class, 'adminIndex']);
+    Route::post('/', [{$namespace}\\{$name}Controller::class, 'store']);
+    Route::put('/{{$name_lower}}', [{$namespace}\\{$name}Controller::class, 'update'])->whereNumber('{$name_lower}');
+    Route::get('/{{$name_lower}}', [{$namespace}\\{$name}Controller::class, 'show'])->whereNumber('{$name_lower}');
+    Route::delete('/{{$name_lower}}', [{$namespace}\\{$name}Controller::class, 'destroy'])->whereNumber('{$name_lower}');
+});
+Route::prefix('{$prefix}')->group(function () {
+    Route::get('/', [{$namespace}\\{$name}Controller::class, 'index']);
+    Route::get('/{{$name_lower}}', [{$namespace}\\{$name}Controller::class, 'show'])->whereNumber('{$name_lower}');
+});";
+
+        File::append(base_path('routes/api.php'), $routes);
     }
 }

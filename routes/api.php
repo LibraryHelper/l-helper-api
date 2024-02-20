@@ -66,6 +66,21 @@ Route::middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION])->group(funct
         Route::put('/{category:slug}', [CategoryController::class, 'update']);
         Route::delete('/{category:slug}', [CategoryController::class, 'destroy']);
     });
+    Route::prefix('publishers')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\PublisherController::class, 'adminIndex']);
+        Route::post('/', [App\Http\Controllers\Api\PublisherController::class, 'store']);
+        Route::put('/{publisher}', [App\Http\Controllers\Api\PublisherController::class, 'update'])->whereNumber('publisher');
+        Route::get('/{publisher}', [App\Http\Controllers\Api\PublisherController::class, 'show'])->whereNumber('publisher');
+        Route::delete('/{publisher}', [App\Http\Controllers\Api\PublisherController::class, 'destroy'])->whereNumber('publisher');
+    });
+
+    Route::prefix('authors')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\AuthorController::class, 'adminIndex']);
+        Route::post('/', [App\Http\Controllers\Api\AuthorController::class, 'store']);
+        Route::put('/{author}', [App\Http\Controllers\Api\AuthorController::class, 'update'])->whereNumber('author');
+        Route::get('/{author}', [App\Http\Controllers\Api\AuthorController::class, 'show'])->whereNumber('author');
+        Route::delete('/{author}', [App\Http\Controllers\Api\AuthorController::class, 'destroy'])->whereNumber('author');
+    });
 });
 
 // Routes with auth:api middleware
@@ -84,4 +99,13 @@ Route::prefix('organizations')->group(function () {
 Route::prefix('categories')->group(function () {
     Route::get('/', [CategoryController::class, 'index']);
     Route::get('/{category:slug}', [CategoryController::class, 'show']);
+});
+Route::prefix('publishers')->group(function () {
+    Route::get('/', [App\Http\Controllers\Api\PublisherController::class, 'index']);
+    Route::get('/{publisher}', [App\Http\Controllers\Api\PublisherController::class, 'show'])->whereNumber('publisher');
+});
+
+Route::prefix('authors')->group(function () {
+    Route::get('/', [App\Http\Controllers\Api\AuthorController::class, 'index']);
+    Route::get('/{author}', [App\Http\Controllers\Api\AuthorController::class, 'show'])->whereNumber('author');
 });
