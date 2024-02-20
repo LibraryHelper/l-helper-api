@@ -25,6 +25,7 @@ return new class extends Migration
             $table->foreignId('publisher_id')->index()->constrained('publishers');
             $table->integer('status')->index()->default(1);
             $table->foreignId('organization_id')->index()->constrained('organizations');
+            $table->foreignId('created_by')->index()->constrained('users');
             $table->timestamps();
         });
     }

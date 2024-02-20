@@ -19,7 +19,8 @@ return [
     */
 
     'default' => env('LOG_CHANNEL', 'stack'),
-
+    'logger_bot_token' => env('LOGGER_BOT_TOKEN'),
+    'logger_chat_id' => env('TG_LOG_CHANNEL'),
     /*
     |--------------------------------------------------------------------------
     | Deprecations Log Channel
