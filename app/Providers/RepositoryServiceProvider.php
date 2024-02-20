@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Http\Interfaces\BookInterface;
+use App\Http\Interfaces\CategoryInterface;
 use App\Http\Interfaces\OrganizationInterface;
 use App\Http\Interfaces\UserInterface;
+use App\Http\Repositories\BookRepository;
+use App\Http\Repositories\CategoryRepository;
 use App\Http\Repositories\OrganizationRepository;
 use App\Http\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
@@ -20,6 +24,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(FileInterface::class, FileRepository::class);
         $this->app->bind(UserInterface::class, UserRepository::class);
         $this->app->bind(OrganizationInterface::class, OrganizationRepository::class);
+        $this->app->bind(CategoryInterface::class, CategoryRepository::class);
+        $this->app->bind(BookInterface::class, BookRepository::class);
     }
 
     /**

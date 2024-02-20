@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use App\Http\Services\LogService;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Laravel\Passport\Exceptions\MissingScopeException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -24,7 +26,13 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
-            //
+            if ($e instanceof \Exception || $e instanceof \Error){
+                LogService::sendLog(request(), $e->getMessage(), $e->getFile(), $e->getLine());
+            }
+
+            if ($e instanceof MissingScopeException){
+                return forbiddenRequestResponse("You don't have permission to access this resource.");
+            }
         });
     }
 }

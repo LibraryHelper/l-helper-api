@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\CommonModelTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,6 +17,8 @@ use Modules\FileManager\app\Models\File;
  */
 class Organization extends Model
 {
+    use  CommonModelTrait;
+
     protected $table = 'organizations';
 
     protected $fillable = [
@@ -29,17 +32,6 @@ class Organization extends Model
         "parent_id",
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        self::creating(function (Organization $model) {
-            $model->setSlugAttribute($model->slug);
-        });
-        self::updating(function (Organization $model) {
-            $model->setSlugAttribute($model->slug);
-        });
-    }
 
     public function user(): BelongsTo
     {
@@ -66,10 +58,4 @@ class Organization extends Model
         return $this->hasMany(Organization::class, 'parent_id', 'id');
     }
 
-    public function setSlugAttribute($slug): void
-    {
-        if (!$slug){
-            $this->attributes['slug'] = Str::slug($this->name);
-        }
-    }
 }

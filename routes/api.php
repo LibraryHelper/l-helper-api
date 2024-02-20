@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CountryController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\UserController;
@@ -36,25 +37,51 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/resend-code', [AuthController::class, 'resendCode']);
 });
-
-Route::prefix('user')->middleware('auth:api')->group(function () {
-    Route::get('/profile', [UserController::class, 'profile']);
-});
-
-Route::prefix('organizations')
-    ->middleware('auth:api')
-    ->group(function () {
-        Route::post('/', [OrganizationController::class, 'store']);
-        Route::middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION])->group(function () {
-            Route::get('/my-organization', [OrganizationController::class, 'myOrganization'])->middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION]);
-            Route::put('/{organization}', [OrganizationController::class, 'update'])->whereNumber('organization');
-            Route::post('/details', [OrganizationController::class, 'details']);
-            Route::get('/branches', [OrganizationController::class, 'branches']);
-            Route::post('/branches', [OrganizationController::class, 'storeBranch']);
-            Route::put('/branches/{organization}', [OrganizationController::class, 'updateBranch'])->whereNumber('organization');
-            Route::delete('/branches/{organization}', [OrganizationController::class, 'destroyBranch'])->whereNumber('organization');
-        });
-    });
 Route::prefix('countries')->group(function () {
     Route::get('/', [CountryController::class, 'index']);
+});
+
+// Routes with auth:api and scope:organization middleware
+Route::middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION])->group(function () {
+    Route::prefix('organizations')->group(function () {
+        Route::get('/my-organization', [OrganizationController::class, 'myOrganization']);
+        Route::put('/{organization}', [OrganizationController::class, 'update'])->whereNumber('organization');
+        Route::post('/details', [OrganizationController::class, 'details']);
+        Route::get('/branches', [OrganizationController::class, 'branches']);
+        Route::post('/branches', [OrganizationController::class, 'storeBranch']);
+        Route::put('/branches/{organization}', [OrganizationController::class, 'updateBranch'])->whereNumber('organization');
+        Route::delete('/branches/{organization}', [OrganizationController::class, 'destroyBranch'])->whereNumber('organization');
+    });
+    Route::prefix('categories')->group(function () {
+        Route::get('/', [CategoryController::class, 'adminIndex']);
+        Route::post('/', [CategoryController::class, 'store']);
+        Route::get('/{category:slug}', [CategoryController::class, 'show']);
+        Route::put('/{category:slug}', [CategoryController::class, 'update']);
+        Route::delete('/{category:slug}', [CategoryController::class, 'destroy']);
+    });
+    Route::prefix('genres')->group(function () {
+        Route::get('/', [CategoryController::class, 'adminIndexGenre']);
+        Route::post('/', [CategoryController::class, 'storeGenre']);
+        Route::get('/{category:slug}', [CategoryController::class, 'show']);
+        Route::put('/{category:slug}', [CategoryController::class, 'update']);
+        Route::delete('/{category:slug}', [CategoryController::class, 'destroy']);
+    });
+});
+
+// Routes with auth:api middleware
+Route::middleware(['auth:api'])->group(function () {
+    Route::prefix('user')->group(function () {
+        Route::get('/profile', [UserController::class, 'profile']);
+    });
+    Route::post('/organizations', [OrganizationController::class, 'store']);
+});
+
+// Routes without middleware
+Route::prefix('organizations')->group(function () {
+    Route::get('/', [OrganizationController::class, 'index']);
+    Route::get('/{organization:slug}', [OrganizationController::class, 'show']);
+});
+Route::prefix('categories')->group(function () {
+    Route::get('/', [CategoryController::class, 'index']);
+    Route::get('/{category:slug}', [CategoryController::class, 'show']);
 });

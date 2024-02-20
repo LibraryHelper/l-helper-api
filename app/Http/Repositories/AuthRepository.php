@@ -119,12 +119,18 @@ class AuthRepository
         }
         $model->update([
             'password' => Hash::make($request->password),
-            'status' => User::STATUS_ACTIVE,
         ]);
-
+        $token = $model->createToken($model->phone, [$model->role])->accessToken;
+        if ($token) {
+            $model->update([
+                'status' => User::STATUS_ACTIVE,
+            ]);
+        } else {
+            return errorResponse('Token not created');
+        }
         return okResponse([
             'user' => $model,
-            'token' => $model->createToken('authToken')->accessToken,
+            'token' => $token,
         ]);
     }
 
