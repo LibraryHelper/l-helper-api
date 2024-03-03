@@ -50,8 +50,8 @@ class OrganizationRepository extends BaseRepository implements OrganizationInter
     {
         $user = Auth::user();
         if (!$is_branch) {
-            if ($user->organization_id && $user->role == User::ROLE_ORGANIZATION) {
-                return errorResponse('You already have an organization');
+            if ($user->organization_id && $user->role === User::ROLE_ORGANIZATION) {
+                return errorResponse('Sizda allaqachon tashkilot bor');
             }
             $model = Organization::query()->create($request->all());
             if ($model instanceof Organization) {
@@ -70,7 +70,7 @@ class OrganizationRepository extends BaseRepository implements OrganizationInter
             ]);
         } else {
             if ($user->role != User::ROLE_ORGANIZATION) {
-                return errorResponse('You are not authorized to create a branch');
+                return errorResponse('Siz filial yaratish huquqiga ega emassiz!');
             }
             $request['parent_id'] = $user->organization_id;
             $model = Organization::query()->create($request->all());
@@ -97,7 +97,7 @@ class OrganizationRepository extends BaseRepository implements OrganizationInter
     {
         if ($is_branch && $organization->parent_id) {
             $organization->delete();
-            return okResponse('Branch deleted');
+            return okResponse('Filial oʻchirildi');
         }
         $organization->delete();
         return okResponse($organization);

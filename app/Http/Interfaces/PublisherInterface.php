@@ -13,7 +13,7 @@ interface PublisherInterface
 
     public function adminIndex(Request $request);
 
-    public function show(Request $request, int $id): JsonResponse;
+    public function show(Request $request, string $slug): JsonResponse;
 
     public function store(Request $request): JsonResponse;
 

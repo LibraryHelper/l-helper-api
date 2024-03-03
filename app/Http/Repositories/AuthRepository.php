@@ -35,7 +35,7 @@ class AuthRepository
                     'user' => $model,
                 ]);
             } else {
-                $response = errorResponse('This user is blocked');
+                $response = errorResponse("Ushbu telefon raqami bloklangan!");
             }
             return $response;
         } else {
@@ -71,7 +71,7 @@ class AuthRepository
                 'code' => $confirmCode->code
             ];
         } else {
-            $text = "Your verification code is: {$code}";
+            $text = "Tasdiqlash kodingiz: {$code}";
             SmsService::sendSms($user->phone, $text);
         }
 
@@ -84,9 +84,9 @@ class AuthRepository
             ->where('code', $request->code)
             ->firstOrFail();
         if (now()->gt($confirmCode->expires_at)) {
-            return errorResponse('Code expired');
+            return errorResponse('Tasdiqlash kodi eskirgan');
         } elseif ($confirmCode->is_used) {
-            return errorResponse('Code already used');
+            return errorResponse('Tasdiqlash kodi allaqachon ishlatilgan');
         }
         if (in_array($confirmCode->user->status, [User::STATUS_WAIT_VERIFICATION, User::STATUS_CREATING_PASSWORD])) {
             $confirmCode->update([
@@ -108,14 +108,14 @@ class AuthRepository
             ]);
         }
 
-        return errorResponse('User not found');
+        return errorResponse('Foydalanuvchi topilmadi!');
     }
 
     public function createPassword(Request $request): JsonResponse
     {
         $model = User::findOrFail($request->user_id);
         if ($model->status !== User::STATUS_CREATING_PASSWORD) {
-            return errorResponse('User status is not creating password');
+            return errorResponse('Foydalanuvchi holati parol yaratishda emas!');
         }
         $model->update([
             'password' => Hash::make($request->password),
@@ -126,7 +126,7 @@ class AuthRepository
                 'status' => User::STATUS_ACTIVE,
             ]);
         } else {
-            return errorResponse('Token not created');
+            return errorResponse('Token yaratilmadi!');
         }
         return okResponse([
             'user' => $model,
@@ -151,7 +151,7 @@ class AuthRepository
                 'token' => $token,
             ]);
         } else {
-            return errorResponse('Incorrect phone or password');
+            return errorResponse("Telefon raqami yoki parol noto'g'ri");
         }
     }
 
@@ -166,7 +166,7 @@ class AuthRepository
                 'key' => $this->sendCode($confirmCode->user),
             ]);
         } else {
-            return errorResponse('Invalid key');
+            return errorResponse('Yaroqsiz kalit');
         }
 
     }

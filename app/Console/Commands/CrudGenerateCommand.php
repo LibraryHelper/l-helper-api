@@ -503,12 +503,12 @@ Route::prefix('{$prefix}')->group(function () {
     Route::get('/', [{$namespace}\\{$name}Controller::class, 'adminIndex']);
     Route::post('/', [{$namespace}\\{$name}Controller::class, 'store']);
     Route::put('/{{$name_lower}}', [{$namespace}\\{$name}Controller::class, 'update'])->whereNumber('{$name_lower}');
-    Route::get('/{{$name_lower}}', [{$namespace}\\{$name}Controller::class, 'show'])->whereNumber('{$name_lower}');
+    Route::get('/{slug}', [{$namespace}\\{$name}Controller::class, 'show'])->where('slug', '[a-zA-Z0-9-]+');
     Route::delete('/{{$name_lower}}', [{$namespace}\\{$name}Controller::class, 'destroy'])->whereNumber('{$name_lower}');
 });
 Route::prefix('{$prefix}')->group(function () {
     Route::get('/', [{$namespace}\\{$name}Controller::class, 'index']);
-    Route::get('/{{$name_lower}}', [{$namespace}\\{$name}Controller::class, 'show'])->whereNumber('{$name_lower}');
+    Route::get('/{slug}', [{$namespace}\\{$name}Controller::class, 'show'])->where('slug', '[a-zA-Z0-9-]+');
 });";
 
         File::append(base_path('routes/api.php'), $routes);
