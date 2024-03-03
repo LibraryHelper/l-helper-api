@@ -37,5 +37,5 @@ return [
     ],
     'static_url' => env('STATIC_URL'),
     'admin_allow_ext' => 'mp4,mpeg,avi,3gp,mov,jpeg,jpg,svg,png,docx,xls,xlsx,csv,pdf,zip,rar,mp3,ogg',
-    'front_allow_ext' => 'jpeg,jpg,png,docx,xlsx,zip,rar,mp3,ogg,mp4,mpeg,avi,3gp,mov,svg,xls,csv,pdf',
+    'front_allow_ext' => 'jpeg,jpg,png,pdf',
 ];

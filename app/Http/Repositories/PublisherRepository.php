@@ -31,10 +31,13 @@ class PublisherRepository extends BaseRepository implements PublisherInterface
         return DefaultResource::collection($data);
     }
 
-    public function show(Request $request, int $id): JsonResponse
+    public function show(Request $request, string $slug): JsonResponse
     {
         $query = $this->generateQuery($request);
-        $publisher = $query->findOrFail($id);
+        $publisher = $query->where('slug', $slug)->first();
+        if (!$publisher) {
+            return notFoundRequestResponse();
+        }
         return okResponse($publisher);
     }
 
@@ -47,7 +50,7 @@ class PublisherRepository extends BaseRepository implements PublisherInterface
 
     public function update(Request $request, Publisher $publisher): JsonResponse
     {
-        $publisher = $publisher->update($request->all());
+        $publisher->update($request->all());
         $this->defaultAppendAndInclude($publisher, $request);
         return okResponse($publisher);
     }

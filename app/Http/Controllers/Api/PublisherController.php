@@ -77,9 +77,9 @@ class PublisherController extends Controller
     * }
     */
 
-    public function show(Request $request, int $id): JsonResponse
+    public function show(Request $request, string $slug): JsonResponse
     {
-        return $this->publisherRepository->show($request, $id);
+        return $this->publisherRepository->show($request, $slug);
     }
 
     /**

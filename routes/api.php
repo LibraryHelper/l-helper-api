@@ -55,14 +55,12 @@ Route::middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION])->group(funct
     Route::prefix('categories')->group(function () {
         Route::get('/', [CategoryController::class, 'adminIndex']);
         Route::post('/', [CategoryController::class, 'store']);
-        Route::get('/{category:slug}', [CategoryController::class, 'show']);
         Route::put('/{category:slug}', [CategoryController::class, 'update']);
         Route::delete('/{category:slug}', [CategoryController::class, 'destroy']);
     });
     Route::prefix('genres')->group(function () {
         Route::get('/', [CategoryController::class, 'adminIndexGenre']);
         Route::post('/', [CategoryController::class, 'storeGenre']);
-        Route::get('/{category:slug}', [CategoryController::class, 'show']);
         Route::put('/{category:slug}', [CategoryController::class, 'update']);
         Route::delete('/{category:slug}', [CategoryController::class, 'destroy']);
     });
@@ -70,7 +68,6 @@ Route::middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION])->group(funct
         Route::get('/', [App\Http\Controllers\Api\PublisherController::class, 'adminIndex']);
         Route::post('/', [App\Http\Controllers\Api\PublisherController::class, 'store']);
         Route::put('/{publisher}', [App\Http\Controllers\Api\PublisherController::class, 'update'])->whereNumber('publisher');
-        Route::get('/{publisher}', [App\Http\Controllers\Api\PublisherController::class, 'show'])->whereNumber('publisher');
         Route::delete('/{publisher}', [App\Http\Controllers\Api\PublisherController::class, 'destroy'])->whereNumber('publisher');
     });
 
@@ -78,7 +75,6 @@ Route::middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION])->group(funct
         Route::get('/', [App\Http\Controllers\Api\AuthorController::class, 'adminIndex']);
         Route::post('/', [App\Http\Controllers\Api\AuthorController::class, 'store']);
         Route::put('/{author}', [App\Http\Controllers\Api\AuthorController::class, 'update'])->whereNumber('author');
-        Route::get('/{author}', [App\Http\Controllers\Api\AuthorController::class, 'show'])->whereNumber('author');
         Route::delete('/{author}', [App\Http\Controllers\Api\AuthorController::class, 'destroy'])->whereNumber('author');
     });
 });
@@ -94,18 +90,19 @@ Route::middleware(['auth:api'])->group(function () {
 // Routes without middleware
 Route::prefix('organizations')->group(function () {
     Route::get('/', [OrganizationController::class, 'index']);
-    Route::get('/{organization:slug}', [OrganizationController::class, 'show']);
+    Route::get('/{slug}', [OrganizationController::class, 'show'])->where('slug', '[a-zA-Z0-9-]+');
 });
 Route::prefix('categories')->group(function () {
     Route::get('/', [CategoryController::class, 'index']);
-    Route::get('/{category:slug}', [CategoryController::class, 'show']);
+    Route::get('/{slug}', [CategoryController::class, 'show'])->where('slug', '[a-zA-Z0-9-]+');
 });
 Route::prefix('publishers')->group(function () {
     Route::get('/', [App\Http\Controllers\Api\PublisherController::class, 'index']);
-    Route::get('/{publisher}', [App\Http\Controllers\Api\PublisherController::class, 'show'])->whereNumber('publisher');
+    Route::get('/{slug}', [App\Http\Controllers\Api\PublisherController::class, 'show'])->where('slug', '[a-zA-Z0-9-]+');
 });
 
 Route::prefix('authors')->group(function () {
     Route::get('/', [App\Http\Controllers\Api\AuthorController::class, 'index']);
-    Route::get('/{author}', [App\Http\Controllers\Api\AuthorController::class, 'show'])->whereNumber('author');
+    Route::get('/{slug}', [App\Http\Controllers\Api\AuthorController::class, 'show'])->where('slug', '[a-zA-Z0-9-]+');
 });
+

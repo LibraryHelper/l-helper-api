@@ -25,7 +25,7 @@ class StorePublisherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => 'required|integer|min:-2147483648|max:2147483647',
+            'status' => 'integer|min:-2147483648|max:2147483647',
             'name' => 'required|string',
             'slug' => 'nullable|string'
         ];
