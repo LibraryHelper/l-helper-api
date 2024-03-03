@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Http\Interfaces\AuthorInterface;
 use App\Http\Interfaces\BookInterface;
+use App\Http\Interfaces\BookLanguageInterface;
 use App\Http\Interfaces\CategoryInterface;
 use App\Http\Interfaces\OrganizationInterface;
 use App\Http\Interfaces\PublisherInterface;
 use App\Http\Interfaces\UserInterface;
 use App\Http\Repositories\AuthorRepository;
+use App\Http\Repositories\BookLanguageRepository;
 use App\Http\Repositories\BookRepository;
 use App\Http\Repositories\CategoryRepository;
 use App\Http\Repositories\OrganizationRepository;
@@ -32,6 +34,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(BookInterface::class, BookRepository::class);
         $this->app->bind(AuthorInterface::class, AuthorRepository::class);
         $this->app->bind(PublisherInterface::class, PublisherRepository::class);
+        $this->app->bind(BookLanguageInterface::class, BookLanguageRepository::class);
     }
 
     /**

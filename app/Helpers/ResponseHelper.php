@@ -33,7 +33,7 @@ function badRequestResponse(string $message = 'Bad Request', mixed $data = [], s
         'message' => $message,
         'status' => $status,
         'data' => $data,
-    ], 400);
+    ], 403);
 }
 
 function invalidData(string $message = 'The given data was invalid.', mixed $data = [], string|int $status = 'invalid_data'): JsonResponse

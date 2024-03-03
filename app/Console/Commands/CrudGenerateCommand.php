@@ -502,9 +502,9 @@ class CrudGenerateCommand extends Command
 Route::prefix('{$prefix}')->group(function () {
     Route::get('/', [{$namespace}\\{$name}Controller::class, 'adminIndex']);
     Route::post('/', [{$namespace}\\{$name}Controller::class, 'store']);
-    Route::put('/{{$name_lower}}', [{$namespace}\\{$name}Controller::class, 'update'])->whereNumber('{$name_lower}');
+    Route::put('/{{$name_lower}:slug}', [{$namespace}\\{$name}Controller::class, 'update']);
     Route::get('/{slug}', [{$namespace}\\{$name}Controller::class, 'show'])->where('slug', '[a-zA-Z0-9-]+');
-    Route::delete('/{{$name_lower}}', [{$namespace}\\{$name}Controller::class, 'destroy'])->whereNumber('{$name_lower}');
+    Route::delete('/{{$name_lower}:slug}', [{$namespace}\\{$name}Controller::class, 'destroy']);
 });
 Route::prefix('{$prefix}')->group(function () {
     Route::get('/', [{$namespace}\\{$name}Controller::class, 'index']);

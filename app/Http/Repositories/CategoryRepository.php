@@ -40,8 +40,7 @@ class CategoryRepository extends BaseRepository implements CategoryInterface
 
     public function show(Request $request, string $slug): JsonResponse
     {
-        $query = $this->generateQuery($request);
-        $category = $query->where('slug', $slug)->firstOrFail();
+        $category = $this->findBySlug($slug);
 
         $this->defaultAppendAndInclude($category, $request);
 

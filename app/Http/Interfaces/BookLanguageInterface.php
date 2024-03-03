@@ -1,13 +1,13 @@
 <?php
 
-namespace {{namespace}};
+namespace App\Http\Interfaces;
 
 
-use App\Models\{{modelName}};
+use App\Models\BookLanguage;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-interface {{modelName}}Interface
+interface BookLanguageInterface
 {
     public function index(Request $request);
 
@@ -17,7 +17,7 @@ interface {{modelName}}Interface
 
     public function store(Request $request): JsonResponse;
 
-    public function update(Request $request, {{modelName}} ${{paramName}}): JsonResponse;
+    public function update(Request $request, BookLanguage $book_language): JsonResponse;
 
-    public function destroy({{modelName}} ${{paramName}}): JsonResponse;
+    public function destroy(BookLanguage $book_language): JsonResponse;
 }

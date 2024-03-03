@@ -31,7 +31,7 @@ class {{modelName}}Repository extends BaseRepository implements {{modelName}}Int
         return DefaultResource::collection($data);
     }
 
-    public function show(Request $request, int $id): JsonResponse
+    public function show(Request $request, string $slug): JsonResponse
     {
         $query = $this->generateQuery($request);
         ${{paramName}} = $query->findOrFail($id);

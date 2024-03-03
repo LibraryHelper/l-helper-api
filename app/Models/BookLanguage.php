@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\FileManager\app\Models\File;
 
+
+/**
+ * This is the model class for table "book_languages".
+ */
 class BookLanguage extends Model
 {
     use CommonModelTrait;
@@ -14,13 +18,18 @@ class BookLanguage extends Model
     protected $table = 'book_languages';
 
     protected $fillable = [
-        'name',
-        'icon_id',
+        "icon_id",
+        "created_at",
+        "updated_at",
+        "id",
+        "status",
+        "name",
+        "slug"
     ];
 
     public function icon(): BelongsTo
     {
-        return $this->belongsTo(File::class, 'icon_id');
+        return $this->belongsTo(File::class);
     }
 
 }

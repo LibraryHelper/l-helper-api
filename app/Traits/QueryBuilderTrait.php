@@ -14,12 +14,12 @@ trait QueryBuilderTrait
 
     public function filterBetweenDate($query, $start, $end, string $column = 'created_at'): void
     {
-        if (! empty($start)) {
+        if (!empty($start)) {
             $start = (new Carbon($start))->format('Y-m-d 00:00:00');
             $query->where($column, '>=', $start);
         }
 
-        if (! empty($end)) {
+        if (!empty($end)) {
             $end = (new Carbon($end))->format('Y-m-d 23:59:59');
             $query->where($column, '<=', $end);
         }
@@ -41,7 +41,7 @@ trait QueryBuilderTrait
             $search = $request->get($key);
             $query->where(function (Builder $query) use ($search, $columns, $table) {
                 foreach ($columns as $i => $column) {
-                    $column = empty($table) ? $column : $table.'.'.$column;
+                    $column = empty($table) ? $column : $table . '.' . $column;
                     if ($i == 0) {
                         $query->where($column, 'ILIKE', "%$search%");
                     } else {
@@ -73,7 +73,7 @@ trait QueryBuilderTrait
     {
         $filters = $request->get('filter');
         $filter = [];
-        if (! empty($filters)) {
+        if (!empty($filters)) {
             foreach ($filters as $k => $item) {
                 $filter[] = AllowedFilter::exact($k);
             }
@@ -86,5 +86,11 @@ trait QueryBuilderTrait
         if ($request->filled('append')) {
             $model->append(explode(',', $request->get('append')));
         }
+    }
+
+    public function findBySlug(string $slug, $model = null)
+    {
+        $model = $model ?? $this->modelClass;
+        return $model::where('slug', $slug)->firstOrFail();
     }
 }

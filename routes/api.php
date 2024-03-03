@@ -67,15 +67,22 @@ Route::middleware(['auth:api', 'scope:' . User::ROLE_ORGANIZATION])->group(funct
     Route::prefix('publishers')->group(function () {
         Route::get('/', [App\Http\Controllers\Api\PublisherController::class, 'adminIndex']);
         Route::post('/', [App\Http\Controllers\Api\PublisherController::class, 'store']);
-        Route::put('/{publisher}', [App\Http\Controllers\Api\PublisherController::class, 'update'])->whereNumber('publisher');
-        Route::delete('/{publisher}', [App\Http\Controllers\Api\PublisherController::class, 'destroy'])->whereNumber('publisher');
+        Route::put('/{publisher:slug}', [App\Http\Controllers\Api\PublisherController::class, 'update']);
+        Route::delete('/{publisher:slug}', [App\Http\Controllers\Api\PublisherController::class, 'destroy']);
     });
 
     Route::prefix('authors')->group(function () {
         Route::get('/', [App\Http\Controllers\Api\AuthorController::class, 'adminIndex']);
         Route::post('/', [App\Http\Controllers\Api\AuthorController::class, 'store']);
-        Route::put('/{author}', [App\Http\Controllers\Api\AuthorController::class, 'update'])->whereNumber('author');
-        Route::delete('/{author}', [App\Http\Controllers\Api\AuthorController::class, 'destroy'])->whereNumber('author');
+        Route::put('/{author:slug}', [App\Http\Controllers\Api\AuthorController::class, 'update']);
+        Route::delete('/{author:slug}', [App\Http\Controllers\Api\AuthorController::class, 'destroy']);
+    });
+
+    Route::prefix('book-languages')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\BookLanguageController::class, 'adminIndex']);
+        Route::post('/', [App\Http\Controllers\Api\BookLanguageController::class, 'store']);
+        Route::put('/{book_language:slug}', [App\Http\Controllers\Api\BookLanguageController::class, 'update']);
+        Route::delete('/{book_language:slug}', [App\Http\Controllers\Api\BookLanguageController::class, 'destroy']);
     });
 });
 
@@ -106,3 +113,8 @@ Route::prefix('authors')->group(function () {
     Route::get('/{slug}', [App\Http\Controllers\Api\AuthorController::class, 'show'])->where('slug', '[a-zA-Z0-9-]+');
 });
 
+
+Route::prefix('book-languages')->group(function () {
+    Route::get('/', [App\Http\Controllers\Api\BookLanguageController::class, 'index']);
+    Route::get('/{slug}', [App\Http\Controllers\Api\BookLanguageController::class, 'show'])->where('slug', '[a-zA-Z0-9-]+');
+});
